@@ -73,10 +73,10 @@ subway_data %>%
 * How many stations are ADA compliant?
 
 ```{r}
-subway_data %>% 
-  filter(ada == TRUE) %>% 
+subway_data %>%
+  filter(ada == TRUE) %>%
+  distinct(.data = ., station_name, line) %>% 
   nrow(.)
-## needs to be a subset of the first 
 ```
 
 * What proportion of station entrances / exits without vending allow entrance?
@@ -111,26 +111,19 @@ subway_data =
 How many distinct stations serve the A train?
 
 ```{r}
-a_train_stations = filter(subway_data, route_name == "A")
-
-nrow(distinct(a_train_stations, station_name))
-
 subway_data %>% 
   filter(route_name == "A") %>% 
   distinct(.data = ., station_name) %>% 
   nrow(.)
-
-?nrow
-
-##Questin - I created a new dataset -- is there a way to use piping for this?
 ```
 
 Of the stations that serve the A train, how many are ADA compliant?
 
 ```{r}
-nrow(filter(a_train_stations, ada == TRUE))
-
-##Question - used new dataset - is there a way to use piping?
+subway_data %>% 
+  filter(route_name == "A", ada == TRUE) %>% 
+  distinct(.data = ., station_name) %>% 
+  nrow(.)
 ```
 
 #Problem 2
@@ -158,12 +151,6 @@ water_wheel_data = read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xls
   filter(!is.na(dumpster),
          month != "Grand Total") %>% 
   mutate(sports_balls = as.integer(round(sports_balls)))
-
-##another way explanation
-
-#Question - should my filtering be more elegant? rounding and as integer on different lines?
-##question - read_excel on multiple lines? doesnt' look pretty - fine
-?read_excel
 ```
 
 Read and clean precipitation data for 2016 and 2017. For each, omit rows without 
@@ -172,19 +159,21 @@ precipitation data and add a variable year.
 ```{r}
 precipitation_2016_data = read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", 
                               sheet = "2016 Precipitation",
-                              range = "A2:B14") %>% 
+                              range = "A2:B14") %>%
   janitor::clean_names() %>% 
+  rename(precipitation_in = total) %>% 
+  filter(!is.na(precipitation_in)) %>% 
   mutate(year = "2016")
 
 precipitation_2017_data = read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", 
                               sheet = "2017 Precipitation",
                               range = "A2:B14") %>% 
   janitor::clean_names() %>% 
+  rename(precipitation_in = total) %>% 
+  filter(!is.na(precipitation_in)) %>% 
   mutate(year = "2017")
 
-##Question - can I just use the range? or do i need to use cell_cols and omit? can use it, can also use cell_colls, just explain why you're doing it
-##question - for 2017, load all months? even those with null values?
-##col_names
+##add comment about why using range? rather than colcells?
 ```
 
 Next, combine datasets and convert month to a character variable (the variable 
