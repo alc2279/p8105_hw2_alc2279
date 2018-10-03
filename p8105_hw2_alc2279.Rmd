@@ -5,7 +5,9 @@ date: "September 29, 2018"
 output: github_document
 ---
 General questions - do we need to print everything? even when just load/clean data?
-
+question 3 - a more elegant way to do proportion?
+assumptions in question 3, part 2?
+**make sure to name code chunks
 
 #Problem 0
 This “problem” focuses on structure of your submission, especially the use git 
@@ -49,18 +51,15 @@ subway_data =
   janitor::clean_names() %>% 
   select(line:entry, vending, ada) %>% 
   mutate(entry = entry == "YES")
-
-View(subway_data)
-class(subway_data$entry)
 ```
 
 ##Part 2: Describe dataset
-##Prompt:
+###Prompt:
 Write a short paragraph about this dataset – explain briefly what variables the 
 dataset contains, describe your data cleaning steps so far, and give the dimension 
 (rows x columns) of the resulting dataset. Are these data tidy?
 
-##Response
+###Response
 The dataset, subway_data, includes charcteristics of every subway entrance or exit;
 more specifically, it includes data about what lines and routes can be accessed by each 
 entrance/exit (line and route1:route11), its location, (station_latitude, station_longitude), 
@@ -93,8 +92,6 @@ function may be useful here.
 subway_data %>% 
   distinct(.data = ., station_name, line) %>% 
   nrow(.)
-
-distinct(subway_data, entrance_type)
 ```
 
 * How many stations are ADA compliant?
@@ -111,11 +108,8 @@ subway_data %>%
 ```{r}
 subway_data %>% 
   filter(vending == "NO") %>%
-  mean(entry)
-
-class(subway_data$entry)
-
-#Question - not returning mean correctly -- saying that it is not logical nor numeric, but it is
+  pull(entry) %>% 
+  mean()
 ```
 
 
@@ -192,8 +186,6 @@ precipitation_2017_data = read_excel("./data/HealthyHarborWaterWheelTotals2017-9
   rename(precipitation_in = total) %>% 
   filter(!is.na(precipitation_in)) %>% 
   mutate(year = "2017")
-
-##add comment about why using range? rather than colcells?
 ```
 
 Next, combine datasets and convert month to a character variable (the variable 
@@ -213,15 +205,24 @@ For available data, what was the total precipitation in 2017? What was the media
 number of sports balls in a dumpster in 2016?
 
 ```{r}
-nrow(precipitation_data)
 sum(precipitation_2017_data$precipitation_in)
-water_wheel_data %>% 
-  filter(year == "2016") %>% 
-  mean(sports_balls)
 
-class(water_wheel_data$sports_balls)
-##question - how to pipe mean? sports_balls is an integer
+water_wheel_data %>% filter(year == "2016") %>% pull (sports_balls) %>% median()
 ```
+
+
+The first dataset created includes data about the volume/weight and type of 
+trash picked up by the the water wheels (water_wheel_data) by date going 
+back to May 2014. The data in its current state is not tidy (i.e. the year
+variable has missing data, which can easily be cleaned). This data contains
+'r nrow(water_wheel_data)' rows and 'r ncol(water_wheel_data)' columns. 
+
+The second dataset includes precipitation data for 2016 and 2017. It was 
+created by combining the 2016 dataset 'r nrow(precipitation_2016_data)' rows
+and 'r ncol(precipitation_2016_data) columns) and the 2017 dataset ('r
+nrow(precipitation_2017_data)' rows and 'r ncol(precipitation_2017_data
+columns). The resulting data is 'r nrow(precipitation_data)' rows and 'r
+ncol(precipitation_data) columns
 
 #Problem 3
 
@@ -241,7 +242,7 @@ value of Data_value
 or “Very Good”
 
 ```{r}
-#devtools::install_github("p8105/p8105.datasets")
+devtools::install_github("p8105/p8105.datasets")
 
 library(p8105.datasets)
 
@@ -253,62 +254,60 @@ brfss_data = brfss_smart2010 %>%
   spread(key = response, value = data_value) %>% 
   janitor::clean_names() %>% 
   select(year:county, excellent, very_good, good, fair, poor) %>% 
-  mutate(high_response_proportion = (excellent + very_good) / 
-           (excellent + very_good + good + fair + poor))
-
-sum(brfss_data$excellent, brfss_data$poor)
-
-
-##Question - is there a more elegant way to do the proportion? -- logical and then take mean?
+  mutate(high_response = (excellent + very_good)) #adding excellent and high proportions
 ```
 
 ##Part 2: Answer some questions
-Using this dataset, do or answer the following:
+Using this dataset, do or answer the following: 
 
-* How many unique locations are included in the dataset? Is every state represented? 
-What state is observed the most?
+* How many unique locations are included in the dataset? 
 
 ```{r}
-brfss_data_test = 
-  mutate(brfss_data, concat = paste(state, county, sep = '-'))
+#number of unique locations (county/state)
+brfss_data %>% 
+  distinct(.data = ., county) %>% 
+  nrow()
+```
 
-nrow(distinct(brfss_data, county))
+* Is every state represented? 
 
-#assuming that the data are correct and the state always equals the county(this might not
-#always be the case, due to typos, etc. )
+```{r}
+#number of states
+brfss_data %>% 
+  distinct(.data = ., state) %>% 
+  nrow()
 
-nrow(distinct(brfss_data, state))
+#view states - identify the extra one
+distinct(brfss_data, state)
 
-##assuming all 50 states plus DC are represented
+## DC is included
+```
 
+There are 51 states represented, including DC. 
+
+* What state is observed the most?
+
+```{r}
 brfss_data %>% 
   count(state) %>% 
-  arrange(desc(n))
-
+  arrange(desc(n)) %>% 
+  pull(state) %>% 
+  head(1)
 ```
 
 * In 2002, what is the median of the “Excellent” response value?
 
 ```{r}
-brfss_2002_data = 
-  brfss_data %>%
-  filter(year == 2002)
-
-median(brfss_2002_data$excellent, na.rm = TRUE)
-
-##brfss_2002_data = 
-##  brfss_data %>%
-##  filter(year == 2002) %>% 
-##  median(brfss_2002_data$excellent, na.rm = TRUE)
-
-
-#Question - create new dataset??????? is there a way to pipe into median?
+brfss_data %>%
+  filter(year == 2002) %>% 
+  pull(excellent) %>% 
+  median(na.rm = TRUE)
 ```
 
 * Make a histogram of “Excellent” response values in the year 2002.
 
 ```{r}
-ggplot(brfss_2002_data, aes(x = excellent)) + 
+ggplot(brfss_data %>% filter(year == 2002), aes(x = excellent)) + 
   geom_histogram()
 ```
 
@@ -316,13 +315,8 @@ ggplot(brfss_2002_data, aes(x = excellent)) +
 York County and Queens County (both in NY State) in each year from 2002 to 2010.
 
 ```{r}
-brfss_queens_ny_data = 
-  brfss_data %>%
-  filter(county %in% c("NY - Queens County", "NY - New York County")) %>% 
-  mutate(excellent_proportion = excellent / (excellent + very_good + good + fair + poor))
-
-ggplot(brfss_queens_ny_data, aes(x = year, y = excellent_proportion)) + 
+ggplot(brfss_data %>% filter(county %in% c("NY - Queens County", "NY - New York County")) , 
+  aes(x = year, y = excellent)) + 
   geom_point(aes(color = county))
-
 ```
 
