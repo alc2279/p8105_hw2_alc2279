@@ -4,10 +4,6 @@ author: "Annie Clark"
 date: "September 29, 2018"
 output: github_document
 ---
-General questions - do we need to print everything? even when just load/clean data?
-question 3 - a more elegant way to do proportion?
-assumptions in question 3, part 2?
-**make sure to name code chunks
 
 #Problem 0
 This “problem” focuses on structure of your submission, especially the use git 
@@ -75,7 +71,7 @@ So far, I have paired down the data to the relevant variables, standardized the 
 (i.e. made them lower case and removed spaces/special characters), and converted
 the entry variable from character to logical, which will be useful in the analysis. 
 
-So far, this tabel that consists of `r nrow(subway_data)` rows and  `r ncol(subway_data)` 
+So far, this table that consists of `r nrow(subway_data)` rows and  `r ncol(subway_data)` 
 columns is not yet considered to be "tidy." The 11 columns that contain route information
 need to be gathered into one variable (and additionally cleaned up), the vending variable
 should be changed to logical, the entrance_type variable could probably be changed to 
@@ -119,6 +115,7 @@ Reformat data so that route number and route name are distinct variables.
 subway_data =  
   gather(subway_data, key = route_num, value = route_name, route1:route11) %>% 
   separate(route_num, into = c("route", "route_num"), sep = 5) %>%
+  filter(!is.na(route_name)) %>% 
   select(line:ada, route_num, route_name)
 ```
 
@@ -197,6 +194,8 @@ precipitation_data = bind_rows(precipitation_2016_data, precipitation_2017_data)
 ```
 
 ##Part 2: Describe dataset
+
+###Prompt
 Write a paragraph about these data; you are encouraged to use inline R. Be sure to 
 note:
 * the number of observations in both resulting datasets
@@ -204,25 +203,29 @@ note:
 For available data, what was the total precipitation in 2017? What was the median 
 number of sports balls in a dumpster in 2016?
 
-```{r}
-sum(precipitation_2017_data$precipitation_in)
-
-water_wheel_data %>% filter(year == "2016") %>% pull (sports_balls) %>% median()
-```
-
-
+###Response
 The first dataset created includes data about the volume/weight and type of 
 trash picked up by the the water wheels (water_wheel_data) by date going 
 back to May 2014. The data in its current state is not tidy (i.e. the year
 variable has missing data, which can easily be cleaned). This data contains
-'r nrow(water_wheel_data)' rows and 'r ncol(water_wheel_data)' columns. 
+`r nrow(water_wheel_data)` observations and `r ncol(water_wheel_data)` columns.
+The median number of sports balls that were collected in 2016 by the dumpster
+was `r water_wheel_data %>% filter(year == "2016") %>% pull (sports_balls) %>% median()`.
 
-The second dataset includes precipitation data for 2016 and 2017. It was 
-created by combining the 2016 dataset 'r nrow(precipitation_2016_data)' rows
-and 'r ncol(precipitation_2016_data) columns) and the 2017 dataset ('r
-nrow(precipitation_2017_data)' rows and 'r ncol(precipitation_2017_data
-columns). The resulting data is 'r nrow(precipitation_data)' rows and 'r
-ncol(precipitation_data) columns
+The second dataset includes precipitation data for 2016 and 2017 (i.e.
+number of inches of rain by month and year). It was created by combining 
+the 2016 dataset (`r nrow(precipitation_2016_data)` rows and 
+`r ncol(precipitation_2016_data)` columns) and the 2017 dataset 
+(`r nrow(precipitation_2017_data)` rows and `r ncol(precipitation_2017_data)`
+columns). The resulting data is `r nrow(precipitation_data)` observations and 
+`r ncol(precipitation_data)` columns. The total rainfall in 2017 that was 
+recoded (months Jan through Aug) is `r sum(precipitation_2017_data$precipitation_in)`. 
+
+I can see that joining these tables would be benficial to see how rainfall 
+affects the amount of trash collected. To join these tables, I would use a 
+concatenated variable of month and year as the "key" variables. Other important
+variables would be rainfall and weight/volume of data collected. 
+
 
 #Problem 3
 
@@ -283,7 +286,7 @@ distinct(brfss_data, state)
 ## DC is included
 ```
 
-There are 51 states represented, including DC. 
+All 50 states (plus DC) are represented. 
 
 * What state is observed the most?
 
