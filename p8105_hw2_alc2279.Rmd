@@ -50,7 +50,7 @@ subway_data =
 ```
 
 ##Part 2: Describe dataset
-###Prompt:
+###Prompt
 Write a short paragraph about this dataset – explain briefly what variables the 
 dataset contains, describe your data cleaning steps so far, and give the dimension 
 (rows x columns) of the resulting dataset. Are these data tidy?
@@ -198,8 +198,10 @@ precipitation_data = bind_rows(precipitation_2016_data, precipitation_2017_data)
 ###Prompt
 Write a paragraph about these data; you are encouraged to use inline R. Be sure to 
 note:
+
 * the number of observations in both resulting datasets
 * give examples of key variables
+
 For available data, what was the total precipitation in 2017? What was the median 
 number of sports balls in a dumpster in 2016?
 
@@ -219,7 +221,7 @@ the 2016 dataset (`r nrow(precipitation_2016_data)` rows and
 (`r nrow(precipitation_2017_data)` rows and `r ncol(precipitation_2017_data)`
 columns). The resulting data is `r nrow(precipitation_data)` observations and 
 `r ncol(precipitation_data)` columns. The total rainfall in 2017 that was 
-recoded (months Jan through Aug) is `r sum(precipitation_2017_data$precipitation_in)`. 
+recorded (months Jan through Aug) is `r sum(precipitation_2017_data$precipitation_in)`. 
 
 I can see that joining these tables would be benficial to see how rainfall 
 affects the amount of trash collected. To join these tables, I would use a 
@@ -244,9 +246,13 @@ value of Data_value
 * create a new variable showing the proportion of responses that were “Excellent” 
 or “Very Good”
 
-```{r}
+```{r, eval = FALSE}
 devtools::install_github("p8105/p8105.datasets")
 
+## assuming that this is already installed for TAs; if I did not assume that the audience had this installed, I would keep make sure that this was evaluated
+```
+
+```{r}
 library(p8105.datasets)
 
 brfss_data = brfss_smart2010 %>% 
