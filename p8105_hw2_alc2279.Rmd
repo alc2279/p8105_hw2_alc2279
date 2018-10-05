@@ -124,7 +124,7 @@ How many distinct stations serve the A train?
 ```{r}
 subway_data %>% 
   filter(route_name == "A") %>% 
-  distinct(.data = ., station_name) %>% 
+  distinct(.data = ., station_name, line) %>% 
   nrow(.)
 ```
 
@@ -133,7 +133,7 @@ Of the stations that serve the A train, how many are ADA compliant?
 ```{r}
 subway_data %>% 
   filter(route_name == "A", ada == TRUE) %>% 
-  distinct(.data = ., station_name) %>% 
+  distinct(.data = ., station_name, line) %>% 
   nrow(.)
 ```
 
@@ -155,7 +155,7 @@ to an integer variable (using as.integer)
 ```{r}
 library(readxl)
 
-water_wheel_data = read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", 
+water_wheel_data = read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
                               sheet = "Mr. Trash Wheel",
                               range = cell_cols("A:N")) %>% 
   janitor::clean_names() %>% 
@@ -168,7 +168,7 @@ Read and clean precipitation data for 2016 and 2017. For each, omit rows without
 precipitation data and add a variable year. 
 
 ```{r}
-precipitation_2016_data = read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", 
+precipitation_2016_data = read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
                               sheet = "2016 Precipitation",
                               range = "A2:B14") %>%
   janitor::clean_names() %>% 
@@ -176,7 +176,7 @@ precipitation_2016_data = read_excel("./data/HealthyHarborWaterWheelTotals2017-9
   filter(!is.na(precipitation_in)) %>% 
   mutate(year = "2016")
 
-precipitation_2017_data = read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", 
+precipitation_2017_data = read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
                               sheet = "2017 Precipitation",
                               range = "A2:B14") %>% 
   janitor::clean_names() %>% 
@@ -324,7 +324,8 @@ ggplot(brfss_data %>% filter(year == 2002), aes(x = excellent)) +
 York County and Queens County (both in NY State) in each year from 2002 to 2010.
 
 ```{r}
-ggplot(brfss_data %>% filter(county %in% c("NY - Queens County", "NY - New York County")) , 
+ggplot(brfss_data %>% 
+         filter(county %in% c("NY - Queens County", "NY - New York County")), 
   aes(x = year, y = excellent)) + 
   geom_point(aes(color = county))
 ```
